@@ -1,8 +1,10 @@
+require "yaml"
 struct Vector3
   property :x, :y, :z
   def initialize(x : Float64 =0,  y : Float64 =0,  z : Float64 =0)
     @x=x; @y=y; @z=z
   end
+
   def +(a) Vector3.new(@x+a.x, @y+a.y, @z+a.z) end
   def -(a) Vector3.new(@x-a.x, @y-a.y, @z-a.z) end
   def -()  Vector3.new(-@x, -@y, -@z)  end
