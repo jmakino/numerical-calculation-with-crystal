@@ -167,7 +167,7 @@ options.n.times do |i|
   nb.body.push(b)
 end
 nb.adjust_center_of_mass if options.n > 0
-nb.adjust_units if options.n > 1
+nb.adjust_units if options.n > 1 && options.n < 100000
 if options.use_nacsio
   print CommandLog.new("Plummer model created").to_nacs
   nb.nacswrite

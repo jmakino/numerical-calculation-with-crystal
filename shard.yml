@@ -9,3 +9,7 @@ dependencies:
    grlib:
     github: jmakino/gr-crystal
     branch: master
+dependencies:
+   nacsio:
+    github: jmakino/nacsio
+    branch: master

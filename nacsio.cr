@@ -6,7 +6,7 @@
 # Copyright 2020- Jun Makino
 
 require "yaml"
-require "./vector3.cr"
+require "./vector3"
 
 struct Vector3    
   def initialize(ctx : YAML::ParseContext, node : YAML::Nodes::Node)
@@ -24,17 +24,17 @@ module Nacsio
     def self.new
       CommandLog.from_yaml("")
     end            
-    def self.new(logstring : String)
+    def self.new(logstring : String, progname = PROGRAM_NAME, options = ARGV)
       c=CommandLog.new
-      c.command = ([PROGRAM_NAME]+ ARGV).join(" ")
+      c.command = ([progname]+ options).join(" ")
       c.log = logstring
       c
     end            
     def to_nacs    
       self.to_yaml.gsub(/---/, "--- !CommandLog")
     end
-    def add_command
-      @command += "\n"+([PROGRAM_NAME]+ ARGV).join(" ")
+    def add_command(progname = PROGRAM_NAME, options = ARGV)
+      @command += "\n"+([progname]+ options).join(" ")
       self
     end            
 
@@ -56,7 +56,8 @@ module Nacsio
     )  
   end
 
-  def update_commandlog
+  def update_commandlog(progname = PROGRAM_NAME, options = ARGV,
+                        of = STDOUT)
   s=gets("---")
   s=gets("---") if s == "---"
   a=s.to_s.split("\n")
@@ -66,7 +67,7 @@ module Nacsio
   else
     a.shift
     ss = (["---\n"] + a).join("\n")
-    print CommandLog.from_yaml(ss).add_command.to_nacs
+    of.print CommandLog.from_yaml(ss).add_command(progname,options).to_nacs
   end
 end
 
@@ -96,7 +97,7 @@ end
       retval
     end
     
-    def print_particle
+    def print_particle(of = STDOUT)
       yy=@y.as_h.to_a
       ycore = YAML.parse(@p.to_yaml).as_h.to_a
       ycore.each{|core|
@@ -120,7 +121,7 @@ end
           }
         }
       }
-      print newstring.gsub(/---/, "--- !Particle")
+      of.print newstring.gsub(/---/, "--- !Particle")
     end      
   end
 end

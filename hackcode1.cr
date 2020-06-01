@@ -1,6 +1,6 @@
 require "clop"
 include Math
-require "./nacsio.cr"
+require "nacsio"
 include Nacsio
 
 optionstr = <<-END
@@ -331,7 +331,7 @@ class Node
     unless c
       @child[corner] = b
     else
-      if @child[corner].class == Body
+      if @child[corner].is_a?(Body)
         tmp_b = @child[corner]
         child_size = @size / 2.0
         c = Node.new(@center + child_size*offset(corner),child_size)
@@ -350,11 +350,11 @@ class Node
 
   def check_body_in_cell
     @child.each do |c|
-      if c.class == Body
+      if c.is_a?(Body)
         (c.pos - @center).each do |x|
           raise("\nbody out of cell:\n#{c.to_s}\n") if x.abs > @size
         end
-      elsif c.class == Node
+      elsif c.is_a?(Node)
         c.check_body_in_cell
       end
     end
@@ -365,7 +365,7 @@ class Node
     @pos = [0.0, 0.0, 0.0].to_v
     @child.each do |c|
       if c
-        c.center_of_mass if c.class == Node
+        c.center_of_mass if c.is_a?(Node)
         @mass += c.mass
         @pos += c.mass * c.pos
       end

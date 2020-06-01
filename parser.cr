@@ -1,5 +1,5 @@
 module NacsParser
-
+include Math
   # Grammar  
   # expression -> [sign] term { add_op term}
   # sign -> +|-
@@ -149,37 +149,70 @@ module NacsParser
     n
   end
 
+  def eval_expression(e : (Node|Token|Nil), t : YAML::Any)
+    val=0.0
+    if e.is_a?(Token)
+      if e.t == Ttype::Constant
+        val= e.s.to_f
+      elsif e.t == Ttype::Variable
+        val = t[e.s].as_f
+      elsif  e.t == Ttype::Element
+        /^([a-z_][a-z_0-9]*)\[([0-9]+)\]/ =~ e.s
+        vname=$1
+        index = ($2).to_i
+        val = t[vname][index].as_f
+      end
+    elsif e.is_a?(Node)
+      lhval=0.0
+      rhval=0.0
+      if e.operator.s== "Apply"
+        val = eval_function(e.lhs, e.rhs, t)
+      else
+        lhval = eval_expression(e.lhs, t) unless e.lhs.is_a?(Nil)
+        rhval = eval_expression(e.rhs, t) unless e.rhs.is_a?(Nil)
+        if e.operator.s== "+"
+          val = lhval+rhval
+        elsif e.operator.s== "-"
+          val = lhval-rhval
+        elsif e.operator.s== "*"
+          val = lhval*rhval
+        elsif e.operator.s== "/"
+          val = lhval/rhval
+        end
+      end
+    end      
+    val
+  end
+  
+  def eval_function(f : (Node|Token|Nil),
+                args : (Node|Token|Nil),
+                t : YAML::Any)
+    val=0.0
+    if f.is_a?(Token)
+      fname= f.s
+      vals=Array(Float64).new
+      while args.is_a?(Node) && args.operator.s == "Apply"
+        vals.unshift eval_expression(args.rhs, t)
+        args = args.lhs
+      end
+      vals.unshift eval_expression(args, t)
+      if fname == "sqrt"
+        val = sqrt(vals[0])
+      elsif fname == "exp"
+        val = exp(vals[0])
+      elsif fname == "log"
+        val = log(vals[0])
+      elsif fname == "exp"
+        val = exp(vals[0])
+      elsif fname == "pow"
+        val = vals[0]**vals[1]
+      end
+    end
+    val
+  end
 end
 
 struct  Nil
   def ppp(currentindent : Int64 = 0,  indent : Int64 = 4)
   end
 end
-
-include NacsParser
-
-tokens= scan_expression_string( "1.5*m*(r[0]*v[1]-r[1]*v[0])")
-
-x= expression(tokens)
-x.ppp
-
-
-
-token = 
-
-x= expression(scan_expression_string "a(b,c,d)")
-  
-x.ppp
-
-pp! x
-exit
-
-
-x= expression(scan_expression_string( "x(y,z)+f(xy)+r[0]*v[1]"))
-x.ppp
-
-x= expression(scan_expression_string( "x(y,z)+f(xy)+r[0]*v[a]"))
-x.ppp
-
-x= expression(scan_expression_string( "x(y,z)+f(xy)+r[0]*v[]"))
-x.ppp
