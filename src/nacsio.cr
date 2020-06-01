@@ -58,18 +58,33 @@ module Nacsio
 
   def update_commandlog(progname = PROGRAM_NAME, options = ARGV,
                         of = STDOUT)
-  s=gets("---")
-  s=gets("---") if s == "---"
-  a=s.to_s.split("\n")
-  a.pop if a[a.size-1]=="---"
-  if a[0] != " !CommandLog"
-    raise("Input line #{a[0]} not the start of Commandlog")
-  else
-    a.shift
-    ss = (["---\n"] + a).join("\n")
-    of.print CommandLog.from_yaml(ss).add_command(progname,options).to_nacs
+    s=gets("---")
+    s=gets("---") if s == "---"
+    a=s.to_s.split("\n")
+    a.pop if a[a.size-1]=="---"
+    if a[0] != " !CommandLog"
+      raise("Input line #{a[0]} not the start of Commandlog")
+    else
+      a.shift
+      ss = (["---\n"] + a).join("\n")
+      of.print CommandLog.from_yaml(ss).add_command(progname,options).to_nacs
+    end
   end
-end
+  def read_commandlog(ifile= STDIN)
+    c=CommandLog.new
+    s=ifile.gets("---")
+    s=ifile.gets("---") if s == "---"
+    a=s.to_s.split("\n")
+    a.pop if a[a.size-1]=="---"
+    if a[0] != " !CommandLog"
+      raise("Input line #{a[0]} not the start of Commandlog")
+    else
+      a.shift
+      ss = (["---\n"] + a).join("\n")
+      c= CommandLog.from_yaml(ss)
+    end
+    c
+  end
 
   class CP(T)
     property :p, y
@@ -77,8 +92,8 @@ end
       @p=p
       @y=y
     end
-    def self.read_particle
-      s=gets("---")
+    def self.read_particle(ifile = STDIN)
+      s=ifile.gets("---")
       retval=CP(T).new(T.from_yaml(""),YAML::Any.new(nil))
       if  s != nil
         a=s.to_s.split("\n")
