@@ -23,5 +23,9 @@ To cmpile, after you download (or git clone)
    shards install
    make all
 ```
+All programs come with fairly long help message. Try, e.g.,
 
+```
+   mkplummer -h
+```   
 
