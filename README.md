@@ -17,9 +17,11 @@ hackcode1 : A simple Barnes-Hut treecode
 You might want to use fdpscr https://github.com/jmakino/crystalfdps.
 
 To cmpile, after you download (or git clone)
+
+```
    cd src
    shards install
    make all
-
+```
 
 
