@@ -107,21 +107,16 @@ end
 setcharheight(0.05)
 setmarkertype(options.mt)
 setmarkersize(options.ms)
-sp= CP(Particle).read_particle
-while sp.y != nil
-  pp=[sp.y]
-  time = sp.p.time
-  pp! time
-  while (sp= CP(Particle).read_particle).y != nil && sp.p.time == time
-    pp.push sp.y
-  end
+
+Nacsio.repeat_on_snapshots{|pp|
   clearws() 
   box
   text(0.5, 0.06, options.xlabel)
   text(0.06, 0.5, options.ylabel)
-  text(0.6,0.91,"t="+sprintf("%.3f", time))
-  polymarker(pp.map{|p| eval_expression(xexp,p)},
-             pp.map{|p| eval_expression(yexp,p)})
+  text(0.6,0.91,"t="+sprintf("%.3f", pp[0].p.time))
+  polymarker(pp.map{|p| eval_expression(xexp,p.y)},
+             pp.map{|p| eval_expression(yexp,p.y)})
   updatews()
-end
-c=STDERR.gets
+}  
+c=STDERR.gets if ENV["GKS_WSTYPE"]= "x11" 
+

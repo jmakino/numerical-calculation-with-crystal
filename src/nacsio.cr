@@ -16,6 +16,7 @@ struct Vector3
 end
 
 module Nacsio
+  extend self
   class CommandLog
     YAML.mapping(
       command: {type: String, default: "",},
@@ -111,7 +112,11 @@ module Nacsio
       end
       retval
     end
-    
+
+    def print_yamlpart(of = STDOUT)
+      of.print @y.to_yaml.gsub(/---/, "--- !Particle")
+    end
+
     def print_particle(of = STDOUT)
       yy=@y.as_h.to_a
       ycore = YAML.parse(@p.to_yaml).as_h.to_a
@@ -139,4 +144,19 @@ module Nacsio
       of.print newstring.gsub(/---/, "--- !Particle")
     end      
   end
+  
+  def repeat_on_snapshots(p = Particle.new, read_all = false)
+    sp= CP(typeof(p)).read_particle
+    no_time = (sp.y["t"] == nil )
+    while sp.y != nil
+      pp=[sp]
+      time = sp.y["t"].as_f  unless read_all
+      while (sp= CP(typeof(p)).read_particle).y != nil &&
+            (read_all || no_time || sp.y["t"].as_f == time)
+        pp.push sp
+      end
+      yield pp
+    end
+  end
 end
+
