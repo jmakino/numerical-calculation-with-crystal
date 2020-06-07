@@ -1,4 +1,5 @@
 module NacsParser
+  extend self
 include Math
   # Grammar  
   # expression -> [sign] term { add_op term}
@@ -50,6 +51,9 @@ include Math
       elsif  /^([1-9][0-9]*\.[0-9]*)/  =~ s
         tokens.push(Token.new($1, Ttype::Constant))
         len = $1.size
+      elsif  /^([1-9][0-9]*)/  =~ s
+        tokens.push(Token.new($1, Ttype::Constant))
+        len = $1.size
       elsif /^([a-z_][a-z_0-9]*\[[0-9]+\])/ =~ s
         tokens.push(Token.new($1, Ttype::Element))
         len = $1.size
@@ -88,16 +92,21 @@ include Math
     end
   end                                                                   
   
+
   def expression(token)
-    if token[0].t== Ttype::Add
-      n=Node.new(token[0], nil, expression(token))
+    signs = Array(Token).new
+    while token[0].t== Ttype::Add
+      signs.push  token[0]
       token.shift
-    else  
-      n =  term(token)
-      while token.size >0 && token[0].t== Ttype::Add
-        op= token.shift
-        n=Node.new(op, n, term(token))
-      end
+    end
+    n =  term(token)
+    while signs.size >0
+      op = signs.pop
+      n = Node.new(op, nil, n)
+    end
+    while token.size >0 && token[0].t== Ttype::Add
+      op= token.shift
+      n=Node.new(op, n, term(token))
     end
     n
   end
