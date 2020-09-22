@@ -116,13 +116,9 @@ end
 def hybrid(x,v,h,f,g,q)
   f0 = f.call(x)
   v+= f0*(h/2)
-  pp! [x, v, f0]
   x,v = variable_step_rk4(x,v,h,g,q)
-  pp! [x, v]
   f1 = f.call(x)
-  pp! [x, v, f1]
   v+= f1*(h/2)
-  pp! [x, v, f1]
   {x,v}
 end
 

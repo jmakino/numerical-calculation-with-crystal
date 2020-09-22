@@ -9,12 +9,14 @@ module Integrators
     {x,t}
   end
   def rk2(x,t,h,f)
+#    print "rk2 called\n"
     k1 = f.call(x,t)
     k2 = f.call(x+k1*h, t+h)
-    {x + h/2*(k1+k2), t+h}
+    {x + (k1+k2)*(h/2), t+h}
   end
 
   def rk4(x,t,h,f)
+#    print "rk4 called\n"
     hhalf=h/2
     k1 = f.call(x,t)
     k2 = f.call(x+k1*hhalf, t+hhalf)
@@ -34,8 +36,8 @@ module Integrators
     t1 = t+(a11+a12)*h
     t2 = t+(a21+a22)*h
     NITER.times{
-	xg1 = x+(a11*f1+a12*f2)*h
-	xg2 = x+(a21*f1+a22*f2)*h
+	xg1 = x+(f1*a11+f2*a12)*h
+	xg2 = x+(f1*a21+f2*a22)*h
 	f1 = f.call(xg1,t1)
 	f2 = f.call(xg2,t2)
     }
