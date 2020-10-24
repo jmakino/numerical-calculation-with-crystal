@@ -139,10 +139,6 @@ def variable_step_int(x,v,h,g,q,fint)
     dt = sqrt((x*x)/(v*v))*q
     dt = h-t if t+dt > h
     xv = [x,v].to_mathv
-    pp!  dt
-    pp! xv
-    pp! ff.call(xv,t)
-    pp! g.call(x)
     xv,t = fint.call(xv,t,dt,ff)    
     x,v= xv
   end
@@ -152,13 +148,9 @@ end
 def hybrid(x,v,h,f,g,q, fint)
   f0 = f.call(x)
   v+= f0*(h/2)
-  pp! [x, v, f0]
   x,v = variable_step_int(x,v,h,g,q, fint)
-  pp! [x, v]
   f1 = f.call(x)
-  pp! [x, v, f1]
   v+= f1*(h/2)
-  pp! [x, v, f1]
   {x,v}
 end
 
@@ -251,5 +243,6 @@ while t < options.norb*PI*2 - options.h
   pp! x, v, energy(x,v,m)
 end
 p! -emax/e0
+pp! options
 c=gets if options.gout
 
