@@ -11,3 +11,6 @@ dependencies:
   nacsio:
     github: jmakino/nacsio
     branch: master
+  narray:
+    github: jmakino/narray
+    branch: main

@@ -14,26 +14,40 @@ class Narray(T)
       false
     {% end %}
   end
-  def initialize(nx : Int32,ny : Int32 = 1, nz : Int32 = 1)
+  def initialize(@nx : Int32, @ny : Int32 = 1, @nz : Int32 = 1)
+    n=@nx*@ny*@nz
+    @data = Slice(T).new(Pointer(T).malloc(n), n)
+    @datasl = @data
     {% if bound_check %}
-      @data = Slice(T).new(Pointer(T).malloc(nx*ny*nz), nx*ny*nz)
-      @datasl = @data
-    {% else %}
-      @data = Pointer(T).malloc(nx*ny*nz)
-      @datasl = Slice(T).new(@data,  nx*ny*nz)
+      @data  = @datasl
     {% end %}
-    @nx=nx
-    @ny=ny
-    @nz=nz
   end
-  def [](i)   @data[i] end
-  def [](i,j) @data[i*@ny+j]  end
-  def [](i,j,k)     @data[(i*@ny+j)*@nz+k]   end
-  def []=(i,x)  @data[i]=x    end
-  def []=(i,j,x)   @data[i*@ny+j]=x  end
+  def [](i)      @data[i] end
+  def [](i,j)    @data[i*@ny+j]  end
+  def [](i,j,k)  @data[(i*@ny+j)*@nz+k]   end
+  def []=(i,x)   @data[i]=x    end
+  def []=(i,j,x) @data[i*@ny+j]=x  end
   def []=(i,j,k, x)  @data[(i*@ny+j)*@nz+k]=x   end
   macro method_missing(call)
     @datasl.\{{call}}
+  end
+  def each_index
+    @nx.times{|i|
+      @ny.times{|j|
+        @nz.times{|k|
+          yield i,j,k
+        }
+      }
+    }
+  end
+  def each_index(idim)
+    if idim == 0
+      @nx.times{|i| yield i}
+    elsif  idim == 1
+      @ny.times{|j|yield j}
+    elsif  idim == 2
+      @nz.times{|k|yield k}
+    end
   end
 end
 end

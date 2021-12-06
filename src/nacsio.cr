@@ -8,22 +8,31 @@
 require "yaml"
 require "./vector3"
 
-struct Vector3    
-  def initialize(ctx : YAML::ParseContext, node : YAML::Nodes::Node)
-    a=Array(Float64).new(ctx, node)
-    @x=a[0]; @y=a[1]; @z=a[2]
-  end
-end
+# struct Vector3    
+#   def initialize(ctx : YAML::ParseContext, node : YAML::Nodes::Node)
+#     a=Array(Float64).new(ctx, node)
+#     @x=a[0]; @y=a[1]; @z=a[2]
+#   end
+# end
 
 module Nacsio
   extend self
   class CommandLog
-    YAML.mapping(
-      command: {type: String, default: "",},
-      log: {type: String, default: "",},
-    )
+    include YAML::Serializable
+    @[YAML::Field(key: "command")]
+    property command : String
+    @[YAML::Field(key: "log")]
+    property log : String
+
+    # YAML.mapping(
+    #   command: {type: String, default: "",},
+    #   log: {type: String, default: "",},
+    # )
     def self.new
-      CommandLog.from_yaml("")
+      CommandLog.from_yaml(%(
+  command: 
+  log: 
+))
     end            
     def self.new(logstring : String, progname = PROGRAM_NAME, options = ARGV)
       c=CommandLog.new
@@ -46,15 +55,38 @@ module Nacsio
       self.to_yaml.gsub(/---/, "--- !Particle")
     end
     def self.new
-      Particle.from_yaml("")
+        Particle.from_yaml(%(
+  id: 0
+  t:  0.0
+  m:  0.0
+  r:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  v:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+))
     end
-    YAML.mapping(
-      id: {type: Int64, default: 0i64,},
-      time: {type: Float64, key: "t", default: 0.0,},
-      mass: {type: Float64, key: "m",default: 0.0,},
-      pos: {type: Vector3, key: "r",default: [0.0,0.0,0.0].to_v,},
-      vel: {type: Vector3, key: "v",default: [0.0,0.0,0.0].to_v,},
-    )  
+    include YAML::Serializable
+    @[YAML::Field(key: "id")]
+    property id : Int64
+    @[YAML::Field(key: "t")]
+    property time : Float64
+    @[YAML::Field(key: "m")]
+    property mass : Float64
+    @[YAML::Field(key: "r")]
+    property pos : Vector3
+    @[YAML::Field(key: "v")]
+    property vel : Vector3
+    # YAML.mapping(
+    #   id: {type: Int64, default: 0i64,},
+    #   time: {type: Float64, key: "t", default: 0.0,},
+    #   mass: {type: Float64, key: "m",default: 0.0,},
+    #   pos: {type: Vector3, key: "r",default: [0.0,0.0,0.0].to_v,},
+    #   vel: {type: Vector3, key: "v",default: [0.0,0.0,0.0].to_v,},
+    # )  
   end
 
   def update_commandlog(progname = PROGRAM_NAME, options = ARGV,
@@ -95,7 +127,7 @@ module Nacsio
     end
     def self.read_particle(ifile = STDIN)
       s=ifile.gets("---")
-      retval=CP(T).new(T.from_yaml(""),YAML::Any.new(nil))
+      retval=CP(T).new(T.new,YAML::Any.new(nil))
       if  s != nil
         a=s.to_s.split("\n")
         a.pop if a[a.size-1]=="---"

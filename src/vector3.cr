@@ -1,5 +1,8 @@
-require "yaml"
 struct Vector3
+  include YAML::Serializable
+  @x : Float64 = 0.0
+  @y : Float64 = 0.0
+  @z : Float64 = 0.0
   property :x, :y, :z
   def initialize(x : Float64 =0,  y : Float64 =0,  z : Float64 =0)
     @x=x; @y=y; @z=z
@@ -28,6 +31,7 @@ struct Vector3
   def to_a()
     [@x, @y, @z]
   end
+  
 end
 
 class Array

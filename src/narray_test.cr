@@ -1,4 +1,4 @@
-require "./narray.cr"
+require "narray"
 x =Narray(Float64).new(10)
 x[1]=2.0
 xy =Narray(Float64).new(4,4)

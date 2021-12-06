@@ -168,7 +168,8 @@ include Math
       elsif  e.t == Ttype::Element
         /^([a-z_][a-z_0-9]*)\[([0-9]+)\]/ =~ e.s
         vname=$1
-        index = ($2).to_i
+        index = ["x", "y", "z"][($2).to_i]
+#        pp! t, vname, index
         val = t[vname][index].as_f
       end
     elsif e.is_a?(Node)
